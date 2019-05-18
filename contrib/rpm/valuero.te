@@ -1,0 +1,81 @@
+policy_module(valuero, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type valuero_t;
+type valuero_exec_t;
+init_daemon_domain(valuero_t, valuero_exec_t)
+
+permissive valuero_t;
+
+type valuero_initrc_exec_t;
+init_script_file(valuero_initrc_exec_t)
+
+type valuero_conf_t;
+files_type(valuero_conf_t)
+
+type valuero_var_lib_t;
+files_type(valuero_var_lib_t)
+
+type valuero_var_run_t;
+files_type(valuero_var_run_t)
+
+type valuero_port_t;
+corenet_port(valuero_port_t)
+
+########################################
+#
+# valuero local policy
+#
+allow valuero_t self:process { fork };
+
+allow valuero_t self:fifo_file rw_fifo_file_perms;
+allow valuero_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(valuero_t, valuero_conf_t, valuero_conf_t)
+manage_files_pattern(valuero_t, valuero_conf_t, valuero_conf_t)
+
+manage_dirs_pattern(valuero_t, valuero_var_lib_t, valuero_var_lib_t)
+manage_files_pattern(valuero_t, valuero_var_lib_t, valuero_var_lib_t)
+files_var_lib_filetrans(valuero_t, valuero_var_lib_t, { dir file })
+
+manage_dirs_pattern(valuero_t, valuero_var_run_t, valuero_var_run_t)
+manage_files_pattern(valuero_t, valuero_var_run_t, valuero_var_run_t)
+
+sysnet_dns_name_resolve(valuero_t)
+corenet_all_recvfrom_unlabeled(valuero_t)
+
+allow valuero_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(valuero_t)
+corenet_tcp_sendrecv_generic_node(valuero_t)
+corenet_tcp_sendrecv_all_ports(valuero_t)
+corenet_tcp_bind_generic_node(valuero_t)
+
+gen_require(`
+    type valuero_port_t;
+')
+allow valuero_t valuero_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type valuero_port_t;
+')
+allow valuero_t valuero_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(valuero_t)
+
+files_read_etc_files(valuero_t)
+
+miscfiles_read_localization(valuero_t)
+
+sysnet_dns_name_resolve(valuero_t)
+
+allow valuero_t valuero_exec_t:file execute_no_trans;
+allow valuero_t self:process setsched;
+corecmd_exec_ls(valuero_t)
+corenet_tcp_connect_http_port(valuero_t)
+dev_read_urand(valuero_t)
+fs_getattr_xattr_fs(valuero_t)
+kernel_read_system_state(valuero_t)

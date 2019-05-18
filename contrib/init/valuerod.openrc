@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/valuero/.valuero" ]; then
+	VALD_DEFAULT_DATADIR="/var/lib/valuero/.valuero"
+else
+	VALD_DEFAULT_DATADIR="/var/lib/valuerod"
+fi
+
+VALD_CONFIGFILE=${VALD_CONFIGFILE:-/etc/valuero/valuero.conf}
+VALD_PIDDIR=${VALD_PIDDIR:-/var/run/valuerod}
+VALD_PIDFILE=${VALD_PIDFILE:-${VALD_PIDDIR}/valuerod.pid}
+VALD_DATADIR=${VALD_DATADIR:-${VALD_DEFAULT_DATADIR}}
+VALD_USER=${VALD_USER:-${VAL_USER:-valuero}}
+VALD_GROUP=${VALD_GROUP:-valuero}
+VALD_BIN=${VALD_BIN:-/usr/bin/valuerod}
+VALD_NICE=${VALD_NICE:-${NICELEVEL:-0}}
+VALD_OPTS="${VALD_OPTS:-${VAL_OPTS}}"
+
+name="Valuero Core Daemon"
+description="Valuero cryptocurrency P2P network daemon"
+
+command="/usr/bin/valuerod"
+command_args="-pid=\"${VALD_PIDFILE}\" \
+		-conf=\"${VALD_CONFIGFILE}\" \
+		-datadir=\"${VALD_DATADIR}\" \
+		-daemon \
+		${VALD_OPTS}"
+
+required_files="${VALD_CONFIGFILE}"
+start_stop_daemon_args="-u ${VALD_USER} \
+			-N ${VALD_NICE} -w 2000"
+pidfile="${VALD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${VALD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${VALD_USER}:${VALD_GROUP}" \
+	"${VALD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${VALD_USER}:${VALD_GROUP}" \
+	"${VALD_PIDDIR}"
+
+	checkpath -f \
+	-o ${VALD_USER}:${VALD_GROUP} \
+	-m 0660 \
+	${VALD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${VALD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run valuerod."
+		eerror "The setting must appear in ${VALD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Valuero Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

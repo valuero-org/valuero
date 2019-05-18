@@ -1,0 +1,8 @@
+/usr/bin/valuero-cli		--	gen_context(system_u:object_r:valuero_exec_t,s0)
+/usr/sbin/valuerod		--	gen_context(system_u:object_r:valuero_exec_t,s0)
+/usr/lib(64)?/valuero/valuerod		--	gen_context(system_u:object_r:valuero_exec_t,s0)
+
+/etc/valuero(/.*)?		gen_context(system_u:object_r:valuero_conf_t,s0)
+/var/lib/valuero(/.*)?		gen_context(system_u:object_r:valuero_var_lib_t,s0)
+
+(/var)?/run/valuerod(/.*)?   gen_context(system_u:object_r:valuero_var_run_t,s0)

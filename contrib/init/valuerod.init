@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  valuerod The valuero core server.
+#
+#
+# chkconfig: 345 80 20
+# description: valuerod
+# processname: valuerod
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/valuerod, see below
+if [ -f /etc/sysconfig/valuerod ]; then
+        . /etc/sysconfig/valuerod
+fi
+
+RETVAL=0
+
+prog=valuerod
+# you can override the lockfile via VALD_LOCKFILE in /etc/sysconfig/valuerod
+lockfile=${VALD_LOCKFILE-/var/lock/subsys/valuerod}
+
+# valuerod defaults to /usr/bin/valuerod, override with VALD_BIN
+valuerod=${VALD_BIN-/usr/bin/valuerod}
+
+# valuerod opts default to -disablewallet, override with VALD_OPTS
+valuerod_opts=${VALD_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $valuerod $valuerod_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac

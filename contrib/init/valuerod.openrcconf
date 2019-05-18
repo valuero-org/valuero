@@ -1,0 +1,33 @@
+# /etc/conf.d/valuerod: config file for /etc/init.d/valuerod
+
+# Config file location
+#VALD_CONFIGFILE="/etc/valuero/valuero.conf"
+
+# What directory to write pidfile to?  (created and owned by $VALD_USER)
+#VALD_PIDDIR="/var/run/valuerod"
+
+# What filename to give the pidfile
+#VALD_PIDFILE="${VALD_PIDDIR}/valuerod.pid"
+
+# Where to write valuerod data (be mindful that the blockchain is large)
+#VALD_DATADIR="/var/lib/valuerod"
+
+# User and group to own valuerod process
+#VALD_USER="valuero"
+#VALD_GROUP="valuero"
+
+# Path to valuerod executable
+#VALD_BIN="/usr/bin/valuerod"
+
+# Nice value to run valuerod under
+#VALD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#VALD_OPTS=""
+
+# The timeout in seconds OpenRC will wait for valuerod to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+VALD_SIGTERM_TIMEOUT=60

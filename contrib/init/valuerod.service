@@ -1,0 +1,22 @@
+[Unit]
+Description=Valuero's distributed currency daemon
+After=network.target
+
+[Service]
+User=valuero
+Group=valuero
+
+Type=forking
+PIDFile=/var/lib/valuerod/valuerod.pid
+ExecStart=/usr/bin/valuerod -daemon -pid=/var/lib/valuerod/valuerod.pid \
+-conf=/etc/valuero/valuero.conf -datadir=/var/lib/valuerod -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target
