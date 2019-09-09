@@ -14,7 +14,7 @@
 // Dev fee will go for about 1 year and then cease.
 // 50% of the dev fee goes toward a community fund that will be used for paying bounties.
 // 50% of the dev fee goes toward a core dev fund as a founders reward for ongoing developments of Valuero Core
-#define DEV_ADDRESS "VAw4rhsGSJpA9HcQBeiDuAfziYGenVGhXm"
+#define DEV_ADDRESS "VNBMjDxtFFhfKxFE8ZYdzZRxEZWMs7Sf7B"
 #define DEV_FUND_UNTIL 527040
 CAmount GetDevCoin(CAmount reward);
 #define ASSET_ACTIVATION_HEIGHT 100000
